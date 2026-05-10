@@ -11,6 +11,7 @@ _mmx_dir="${HOME}/.mmx"
 exec docker run --rm -i \
   -v "${_mmx_dir}:/home/app/.mmx" \
   -w /home/app \
+  -e HOME=/home/app \
   -e "MINIMAX_REGION=${MINIMAX_REGION:-cn}" \
   node:22-alpine \
   sh -c "
