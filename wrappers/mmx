@@ -7,10 +7,12 @@ set -e
 _uid=$(id -u)
 _gid=$(id -g)
 _mmx_dir="${HOME}/.mmx"
+_cwd=$(pwd)
 
 exec docker run --rm -i \
   -v "${_mmx_dir}:/home/app/.mmx" \
-  -w /home/app \
+  -v "${_cwd}:${_cwd}" \
+  -w "${_cwd}" \
   -e HOME=/home/app \
   -e "MINIMAX_REGION=${MINIMAX_REGION:-cn}" \
   node:22-alpine \
@@ -20,5 +22,6 @@ exec docker run --rm -i \
     mmx \"\$@\" || _rc=\$?
     # Fix ownership: container runs as root, chown mounted volumes back to host user
     find /home/app/.mmx -not -user ${_uid} -exec chown ${_uid}:${_gid} {} + 2>/dev/null || true
+    find ${_cwd} -not -user ${_uid} -exec chown ${_uid}:${_gid} {} + 2>/dev/null || true
     exit \$_rc
   " -- "$@"
