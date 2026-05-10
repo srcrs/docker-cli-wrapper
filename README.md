@@ -13,7 +13,8 @@
 ```
 .
 ├── wrappers/          # wrapper 脚本目录
-│   └── mmx            # MiniMax CLI wrapper (第一个实例)
+│   ├── mmx            # MiniMax CLI wrapper
+│   └── trellis        # Trellis CLI wrapper
 ├── Makefile
 └── README.md
 ```
@@ -70,3 +71,16 @@ mmx image generate "一只猫"
 mmx speech synthesize "你好"
 mmx music generate "轻快音乐"
 ```
+
+### trellis (Trellis CLI)
+
+```bash
+# 安装
+cp wrappers/trellis ~/.local/bin/trellis && chmod +x ~/.local/bin/trellis
+
+# 使用（在仓库根目录执行）
+trellis check
+trellis implement "task-name"
+```
+
+注意：trellis wrapper 会在容器内自动安装 python3、git、bash 等依赖。
