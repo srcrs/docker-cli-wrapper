@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Trellis CLI wrapper — runs via Docker, no local Node.js needed
+# Image includes: node, npm, python3, git
+_uid=$(id -u)
+_gid=$(id -g)
+
+docker run --rm -i \
+  -v "$(pwd):/repo" \
+  -w /repo \
+  node:22-alpine \
+  sh -c "
+    apk add --no-cache python3 git bash >/dev/null 2>&1
+    npm install -g --force @mindfoldhq/trellis@beta >/dev/null 2>&1
+    trellis \"\$@\"
+    _rc=\$?
+    # Fix ownership: container runs as root, so files in mounted volumes
+    # end up owned by root. Chown them back to the host user.
+    find /repo/.trellis /repo/.claude /repo/AGENTS.md -not -user ${_uid} -exec chown ${_uid}:${_gid} {} + 2>/dev/null || true
+    exit \$_rc
+  " -- "$@"

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# mmx wrapper - runs mmx-cli inside Docker, no local Node.js/npm needed
+# Inspired by Trellis CLI wrapper pattern
+
+set -e
+
+_uid=$(id -u)
+_gid=$(id -g)
+_mmx_dir="${HOME}/.mmx"
+
+exec docker run --rm -i \
+  -v "${_mmx_dir}:/home/app/.mmx" \
+  -w /home/app \
+  -e "MINIMAX_REGION=${MINIMAX_REGION:-cn}" \
+  node:22-alpine \
+  sh -c "
+    npm install -g --force mmx-cli >/dev/null 2>&1
+    _rc=0
+    mmx \"\$@\" || _rc=\$?
+    # Fix ownership: container runs as root, chown mounted volumes back to host user
+    find /home/app/.mmx -not -user ${_uid} -exec chown ${_uid}:${_gid} {} + 2>/dev/null || true
+    exit \$_rc
+  " -- "$@"
